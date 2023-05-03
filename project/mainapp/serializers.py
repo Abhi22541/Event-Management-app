@@ -39,32 +39,13 @@ class EventsDeatilSerializer(serializers.ModelSerializer):
 
 class SeatSerializer(serializers.ModelSerializer):
     class Meta:
-        model=Seat
+        model=seatCategory
         fields='__all__'
 
-class Ticketavaiblitserializer(serializers.ModelSerializer):
-    class Meta:
-        model=Seatsavailable
-        fields=['id', 'avaiblity']
-
-class TicketSerializer(serializers.ModelSerializer):
-    # seat=SeatSerializer(many=True)
-    # seatavailable=Ticketavaiblitserializer(many=True)
+class TicketBookingSerializer(serializers.ModelSerializer):
     class Meta:
         model=Ticektbooking
         fields='__all__'
-
-        # def create(self, validate_data):
-        #     seatData=validate_data.pop('seat')
-        #     availablityData=validate_data.pop('seatavailable')
-        #     ticket=Ticektbooking.objects.create(**validate_data)
-            
-        #     # for seatData in seatData:
-        #     #     Seat.objects.create(ticket=ticket, **seatData)
-        #     # for availablityData in availablityData:
-        #     #     Seatsavailable.objects.create(ticket=ticket, **availablityData)
-
-        #     return ticket
 
 
 

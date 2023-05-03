@@ -13,6 +13,7 @@ from .models import *
 from django.contrib.auth import logout
 from rest_framework import status
 import datetime
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -74,26 +75,68 @@ class DeatilEventView(viewsets.ModelViewSet):
 
 class Ticketlist(generics.ListCreateAPIView):
     queryset=Ticektbooking.objects.all()
-    serializer_class=TicketSerializer
+    serializer_class=TicketBookingSerializer
 
-class Ticketdetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset=Ticektbooking.objects.all()
-    serializer_class=TicketSerializer
+# class Ticketdetail(generics.RetrieveUpdateDestroyAPIView):
+#     queryset=Ticektbooking.objects.all()
+#     serializer_class=TicketSerializer
+# class TicketBookview(APIView):
+#     def post(self, request, format=None):
+#         data=request.data
+#         print(data)
+#         bookingSeats=data['seatquantity']
+#         bookedSeats=bookingSeats
+#         if Seat.avaiblity<bookedSeats:
+#             return Response("Total seats is "+str(Seat.avaiblity)+", so please choose seat in the limit")
+#         remSeats=Seat.avaiblity-bookedSeats
+#         Seat.avaiblity=remSeats
+#         Seat.save()
+#         seatsAmount=bookedSeats*Seat.price
 
-class SeatDetail(APIView):
-    def get(self, request, pk, seat_pk):
-        ticket = get_object_or_404(Ticektbooking, pk=pk)
-        seat = get_object_or_404(Seat, pk=seat_pk, ticket=ticket)
-        serializer = SeatSerializer(seat)
-        return Response(serializer.data)
+#         serializers=TicketBookingSerializer
+#         serializers.is_valid(raise_exception=True)
+#         Ticektbooking=serializers.save()
 
-    def put(self, request, pk, seat_pk):
-        ticket = get_object_or_404(Ticektbooking, pk=pk)
-        seat = get_object_or_404(Seat, pk=seat_pk, ticket=ticket)
-        serializer = SeatSerializer(seat, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors, status=400)
+#         return Response({'info':'your'+str(bookedSeats)+'seats Ticket Booked and ticket number is: ', data:serializers.data})
+
+class EventBookingView(APIView):
+    def post(self, request):
+        bookingID=request.data.get('id')
+        eventName=request.data.get('event name')
+        categoryName=request.data.get('seat')
+        quantity=request.data.get('quantity')
+        bookedseat=int(quantity)
+        try:
+            category=seatCategory.objects.get(id=categoryName)
+            if bookedseat>category.seatAvailable:
+                return Response({'error':'not enough seats available'})
+        except seatCategory.DoesNotExist:
+            return Response({'error':'Invalid Category'})
+        
+        try:
+            event = Event.objects.get(eventName=eventName)
+        except Event.DoesNotExist:
+            return Response({'error': 'Invalid event'})
+        
+        price=category.price
+        totalPrice=bookedseat*price
+
+        booking= Ticektbooking(
+            bookingID=bookingID,
+            event=event,
+            seatquantity=bookedseat,
+            totalprice=price,
+            
+        )
+
+        booking.save()
+        booking.seat.set(categoryName)
+        booking.save()
+        category.seatAvailable-=bookedseat
+
+        return Response({'bookingID':booking.bookingID, 'totalprice':totalPrice, 'availableseats':category.seatAvailable})
+
+        
+
+
 

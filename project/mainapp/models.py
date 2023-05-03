@@ -2,7 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 # Create your models here.
 class Advertisment(models.Model):
+    comapnyName=models.CharField(max_length=60, null=True)
     advImage=models.FileField(upload_to='addImage')
+    def __str__(self):
+        return self.comapnyName
 
 class Event(models.Model):
     eventName=models.CharField(max_length=100)
@@ -20,41 +23,44 @@ class Event(models.Model):
 class Attendee(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     contactNumber = models.CharField(max_length=20, null=True)
-    eventAttending = models.ManyToManyField(Event, related_name='attendees')
+    balance=models.PositiveIntegerField(null=True)
+    
     
     def __str__(self):
         return self.user.username
     
-class Seat(models.Model):
-    SEAT=(('VVIP', 'FIRST CLASS'),
-          ('VIP', 'SECOND CLASS'),
-          ('NORMAL', 'THIRD CLASS'))
-    seatType=models.CharField(max_length=20, choices=SEAT)
+    
+# class Ticket(models.Model):
+#     SEAT=(('VVIP', 'FIRST CLASS'),
+#           ('VIP', 'SECOND CLASS'),
+#           ('NORMAL', 'THIRD CLASS'))
+    
 
-    def __Str__(self):
-        return str(self.seatType)
-
-class Seatsavailable(models.Model):
-    seatCategory=models.OneToOneField(Seat, on_delete= models.CASCADE)
-    avaiblity=models.IntegerField()
-    event=models.ForeignKey(Event, on_delete=models.CASCADE)
+    
+class seatCategory(models.Model):
+    event=models.ManyToManyField(Event)
+    categoryName=models.CharField(max_length=20)
+    price=models.IntegerField()
+    seatAvailable=models.IntegerField()
+    active=models.BooleanField()
 
     def __str__(self):
-        return str(self.avaiblity)
-
-
+        return self.categoryName+'.'+str(self.id)
+    
 class Ticektbooking(models.Model):
     bookingID=models.CharField(max_length=20)
-    attende=models.ForeignKey(Attendee, on_delete=models.CASCADE)
+    attende=models.ForeignKey(Attendee, on_delete=models.CASCADE, null=True, blank=True)
     event=models.ForeignKey(Event, on_delete=models.CASCADE)
-    seat=models.ForeignKey(Seat, on_delete=models.CASCADE)
-    seatavailable=models.ForeignKey(Seatsavailable, on_delete=models.CASCADE)
+    seat=models.ManyToManyField(seatCategory)
     seatquantity=models.IntegerField()
-    price=models.IntegerField()
+    totalprice=models.IntegerField()
     bookingDate=models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.bookingID+'-'+str(self.bookingDate)
+        return self.bookingID+'-'+self.attende.user.username+'-'+self.event.eventName
+    class Meta:
+        ordering=['totalprice']
+
 
 
 

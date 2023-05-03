@@ -10,9 +10,9 @@ routers.register(r'eventslist', ShowUpcomingEventsView, basename='eventlist')
 routers.register(r'eventdetails', DeatilEventView, basename='detailevent')
 routers.register(r'advertisments', AdvertismentView, basename='advertisments')
 
+
 urlpatterns=routers.urls
 urlpatterns+=[
     path('tickets/', Ticketlist.as_view(), name='ticket_list'),
-    path('tickets/<int:pk>/', Ticketdetail.as_view(), name='ticket_detail'),
-    path('tickets/<int:pk>/seats/<int:seat_pk>/', SeatDetail.as_view(), name='seat_detail'),
+    path('tickets/booking/', EventBookingView.as_view(), name='eventbooking')
 ]

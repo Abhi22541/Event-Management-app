@@ -6,5 +6,5 @@ admin.site.register(Event)
 admin.site.register(Advertisment)
 admin.site.register(Ticektbooking)
 admin.site.register(Attendee)
-admin.site.register(Seat)
-admin.site.register(Seatsavailable)
+admin.site.register(seatCategory)
+

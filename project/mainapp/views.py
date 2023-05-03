@@ -1,7 +1,5 @@
 from django.shortcuts import render
 from rest_framework import viewsets, generics
-from django.db.models import Sum
-from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from .serializers import *
 from rest_framework.response import Response
@@ -12,7 +10,6 @@ from rest_framework.authtoken.models import Token
 from .models import *
 from django.contrib.auth import logout
 from rest_framework import status
-import datetime
 from django.contrib.auth.models import User
 
 # Create your views here.
@@ -100,12 +97,23 @@ class Ticketlist(generics.ListCreateAPIView):
 #         return Response({'info':'your'+str(bookedSeats)+'seats Ticket Booked and ticket number is: ', data:serializers.data})
 
 class EventBookingView(APIView):
+    permission_classes=[IsAuthenticated]
     def post(self, request):
+        userid=request.data.get('user')
         bookingID=request.data.get('id')
         eventName=request.data.get('event name')
         categoryName=request.data.get('seat')
         quantity=request.data.get('quantity')
         bookedseat=int(quantity)
+
+        try:
+            user=Attendee.objects.get(pk=userid)
+        except:
+            return Response("invalid user")
+        
+        if request.user!=user:
+            return Response("you have not permisson to do that")
+        
         try:
             category=seatCategory.objects.get(id=categoryName)
             if bookedseat>category.seatAvailable:
@@ -135,8 +143,31 @@ class EventBookingView(APIView):
         category.seatAvailable-=bookedseat
         category.save()
 
+        try:
+            userBal=Attendee.objects.get(user=userid)
+        except:
+            return Response("please register yourself")
+        
+        if userBal<totalPrice:
+            return Response("Low balance please add amount"+str(userBal.balance))
+        updatedBalance=userBal.balance-totalPrice
+        userBal.balance=updatedBalance
+        userBal.save()
+        serializer=TicketBookingSerializer
+        serializer.is_valid(raise_exception=True)
+        ticket=serializer.save()
 
-        return Response({'bookingID':booking.bookingID, 'priceperseat':price , 'totalprice':totalPrice, 'availableseats':category.seatAvailable, 'seatbook':categoryName, 'seat quantity':bookedseat})
+        
+
+
+        return Response({
+            'bookingID':booking.bookingID, 
+            'priceperseat':price ,
+            'totalprice':totalPrice, 
+            'availableseats':category.seatAvailable, 
+            'seatbook':categoryName, 
+            'seat quantity':bookedseat
+            })
 
         
 

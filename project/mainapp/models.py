@@ -48,7 +48,7 @@ class seatCategory(models.Model):
         return self.categoryName+'.'+str(self.id)
     
 class Ticektbooking(models.Model):
-    bookingID=models.CharField(max_length=20, unique=True)
+    bookingID=models.CharField(max_length=20)
     attende=models.ForeignKey(Attendee, on_delete=models.CASCADE, null=True, blank=True)
     event=models.ForeignKey(Event, on_delete=models.CASCADE)
     seat=models.ManyToManyField(seatCategory)

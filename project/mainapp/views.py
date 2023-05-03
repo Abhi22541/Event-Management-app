@@ -128,13 +128,15 @@ class EventBookingView(APIView):
             totalprice=price,
             
         )
-
+        
         booking.save()
         booking.seat.set(categoryName)
         booking.save()
         category.seatAvailable-=bookedseat
+        category.save()
 
-        return Response({'bookingID':booking.bookingID, 'totalprice':totalPrice, 'availableseats':category.seatAvailable})
+
+        return Response({'bookingID':booking.bookingID, 'priceperseat':price , 'totalprice':totalPrice, 'availableseats':category.seatAvailable, 'seatbook':categoryName, 'seat quantity':bookedseat})
 
         
 

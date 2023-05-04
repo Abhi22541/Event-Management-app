@@ -57,7 +57,7 @@ class Ticektbooking(models.Model):
     bookingDate=models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.bookingID+'-'+self.attende.user.username+'-'+self.event.eventName
+        return self.bookingID+'-'+self.event.eventName
     class Meta:
         ordering=['totalprice']
 

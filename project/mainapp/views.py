@@ -97,7 +97,7 @@ class Ticketlist(generics.ListCreateAPIView):
 #         return Response({'info':'your'+str(bookedSeats)+'seats Ticket Booked and ticket number is: ', data:serializers.data})
 
 class EventBookingView(APIView):
-    permission_classes=[IsAuthenticated]
+    # permission_classes=[IsAuthenticated]
     def post(self, request):
         userid=request.data.get('user')
         bookingID=request.data.get('id')
@@ -105,14 +105,16 @@ class EventBookingView(APIView):
         categoryName=request.data.get('seat')
         quantity=request.data.get('quantity')
         bookedseat=int(quantity)
-
-        try:
-            user=Attendee.objects.get(pk=userid)
-        except:
-            return Response("invalid user")
         
-        if request.user!=user:
-            return Response("you have not permisson to do that")
+
+
+        # try:
+        #     user=Attendee.objects.get(pk=userid)
+        # except:
+        #     return Response("invalid user")
+        
+        # if request.user!=user:
+        #     return Response("you have not permisson to do that")
         
         try:
             category=seatCategory.objects.get(id=categoryName)
@@ -148,14 +150,15 @@ class EventBookingView(APIView):
         except:
             return Response("please register yourself")
         
-        if userBal<totalPrice:
-            return Response("Low balance please add amount"+str(userBal.balance))
+        requiredamount=totalPrice-userBal.balance
+        if totalPrice>userBal.balance:
+            return Response("Low balance please add amount"+ "please add rmainig amount to your account "+ str(requiredamount))
         updatedBalance=userBal.balance-totalPrice
         userBal.balance=updatedBalance
         userBal.save()
-        serializer=TicketBookingSerializer
-        serializer.is_valid(raise_exception=True)
-        ticket=serializer.save()
+        # serializer=TicketBookingSerializer
+        # serializer.is_valid(raise_exception=True)
+        # ticket=serializer.save()
 
         
 
@@ -166,7 +169,8 @@ class EventBookingView(APIView):
             'totalprice':totalPrice, 
             'availableseats':category.seatAvailable, 
             'seatbook':categoryName, 
-            'seat quantity':bookedseat
+            'seat quantity':bookedseat,
+            'remainig balance':userBal.balance
             })
 
         

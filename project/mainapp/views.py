@@ -168,7 +168,7 @@ class EventBookingView(APIView):
             'priceperseat':price ,
             'totalprice':totalPrice, 
             'availableseats':category.seatAvailable, 
-            'seatbook':categoryName, 
+            'seatbook':category.categoryName, 
             'seat quantity':bookedseat,
             'remainig balance':userBal.balance
             })

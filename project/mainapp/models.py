@@ -30,10 +30,7 @@ class Attendee(models.Model):
         return self.user.username
     
     
-# class Ticket(models.Model):
-#     SEAT=(('VVIP', 'FIRST CLASS'),
-#           ('VIP', 'SECOND CLASS'),
-#           ('NORMAL', 'THIRD CLASS'))
+
     
 
     
@@ -48,7 +45,7 @@ class seatCategory(models.Model):
         return self.categoryName+'.'+str(self.id)
     
 class Ticektbooking(models.Model):
-    bookingID=models.CharField(max_length=20)
+    bookingID=models.CharField(max_length=20, null=True, blank=True)
     attende=models.ForeignKey(Attendee, on_delete=models.CASCADE, null=True, blank=True)
     event=models.ForeignKey(Event, on_delete=models.CASCADE)
     seat=models.ManyToManyField(seatCategory)
